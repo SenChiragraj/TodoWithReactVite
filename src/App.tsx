@@ -1,6 +1,6 @@
 /** @format */
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Container,
   AppBar,
@@ -11,15 +11,22 @@ import {
   Button,
 } from "@mui/material";
 import TodoItem from "./components/TodoItem";
+import { getTodos, saveTodos } from "./assets/features";
 
 function App() {
-  const [todos, setTodos] = useState<TodoItemType[]>([]);
+  const [todos, setTodos] = useState<TodoItemType[]>(getTodos());
   const [title, setTitle] = useState<string>("");
+
+  useEffect(() => {
+    saveTodos(todos);
+  },[todos])
+
 
   const deleteHandler = (id: TodoItemType["id"]): void => {
     const newTodos: TodoItemType[] = todos.filter((i) => i.id !== id);
     setTodos(newTodos);
   };
+
   const completeHandler = (id: TodoItemType["id"]): void => {
     const changeTodo:TodoItemType[] = todos.map((i) => {
       if(i.id === id) i.isComplete = !i.isComplete;
@@ -27,6 +34,15 @@ function App() {
     });
 
     setTodos(changeTodo);
+  };
+
+  const editHandler = (id: TodoItemType["id"], newTitle: TodoItemType['title']): void => {
+    const editedTodo:TodoItemType[] = todos.map((i) => {
+      if(i.id === id) i.title = newTitle;
+      return i;
+    });
+    console.log(editedTodo);
+    setTodos(editedTodo);
   };
 
   const submitHandler = (title: TodoItemType["title"]): void => {
@@ -64,6 +80,7 @@ function App() {
           <TodoItem
             deleteHandler={deleteHandler}
             completeHandler={completeHandler}
+            editHandler={editHandler}
             key={i.id}
             todo={i}
           /> // Note the parentheses instead of curly braces
